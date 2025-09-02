@@ -128,6 +128,13 @@ function init() {
         
         console.log('Game initialization complete');
         
+        // Set initial scene to opening scene to avoid blank screen
+        scene = scenes.opening;
+        currentScene = 'opening';
+        
+        // Set initial camera position for opening scene
+        camera.position.set(0, 5, 15);
+        
         // Start with opening scene
         setTimeout(() => {
             const loadingElement = document.getElementById('loading');
@@ -3704,7 +3711,6 @@ function animate() {
 // Initialize the game when page loads
 window.addEventListener('load', () => {
     console.log('Page loaded, starting game initialization...');
-    alert('Game is starting...'); // Debug alert
     try {
         init();
         setupKeyboardControls();
