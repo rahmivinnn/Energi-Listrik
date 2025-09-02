@@ -128,22 +128,22 @@ function init() {
         
         console.log('Game initialization complete');
         
-        // Set initial scene to opening scene to avoid blank screen
-        scene = scenes.opening;
-        currentScene = 'opening';
+        // Set initial scene to main menu for testing
+        scene = scenes.mainMenu;
+        currentScene = 'mainMenu';
         
-        // Set initial camera position for opening scene
-        camera.position.set(0, 5, 15);
+        // Set initial camera position for main menu
+        camera.position.set(0, 5, 5);
         
-        // Start with opening scene
+        // Start with main menu directly (skip opening for testing)
         setTimeout(() => {
             const loadingElement = document.getElementById('loading');
             if (loadingElement) {
                 loadingElement.style.display = 'none';
             }
-            console.log('Starting opening scene...');
-            startOpeningScene();
-        }, 2000);
+            console.log('Starting main menu directly...');
+            startMainMenuScene();
+        }, 1000);
         
         // Handle window resize
         window.addEventListener('resize', onWindowResize);
@@ -3846,6 +3846,19 @@ function showSettings() {
         } else if (audioEnabled && audioContext) {
             audioContext.resume();
         }
+    }, 2000);
+}
+
+function showOpeningScene() {
+    // Enable audio context on user interaction
+    if (audioContext && audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+    
+    showSubtitle('Memulai opening scene...');
+    
+    setTimeout(() => {
+        transitionToScene(startOpeningScene);
     }, 2000);
 }
 
