@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Quest: Misteri Hemat Listrik</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        #gameContainer {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        .subtitle {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            max-width: 80%;
+        }
+        
+        .title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #FFD700;
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 0 0 20px #FFD700;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+        
+        .menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        .menu-button {
+            display: block;
+            margin: 15px auto;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #1e3c72, #2a5298);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            min-width: 200px;
+        }
+        
+        .menu-button:hover {
+            background: linear-gradient(45deg, #2a5298, #1e3c72);
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(42, 82, 152, 0.4);
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+        }
+        
+        .fade-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            pointer-events: none;
+            z-index: 200;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="ui">
+            <div id="loading" class="loading">Memuat...</div>
+            <div id="subtitle" class="subtitle"></div>
+            <div id="title" class="title"></div>
+            <div id="fade-overlay" class="fade-overlay"></div>
+            <div id="menu" class="menu">
+                <button class="menu-button" onclick="startGame()">▶️ Mulai Permainan</button>
+                <button class="menu-button" onclick="continueGame()">🔁 Lanjutkan</button>
+                <button class="menu-button" onclick="showSettings()">⚙️ Pengaturan</button>
+                <button class="menu-button" onclick="showAbout()">ℹ️ Tentang</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
