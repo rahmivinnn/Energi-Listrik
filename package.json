@@ -1,0 +1,27 @@
+{
+  "name": "energy-quest-game",
+  "version": "1.0.0",
+  "description": "Energy Quest: Misteri Hemat Listrik - Game edukasi tentang penghematan energi listrik",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "build": "echo 'Static site, no build needed'",
+    "start": "python3 -m http.server 8000"
+  },
+  "keywords": [
+    "game",
+    "education",
+    "energy",
+    "three.js",
+    "javascript"
+  ],
+  "author": "Energy Quest Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/energy-quest-game.git"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
