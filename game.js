@@ -1436,6 +1436,24 @@ function createHouseRevealScene() {
     tvGlow.position.set(3, 4, -7);
     houseScene.add(tvGlow);
     
+    // Add flickering light for animation
+    const flickerLight = new THREE.PointLight(0xFFFF88, 1.5, 15);
+    flickerLight.position.set(-2, 6, -8);
+    flickerLight.castShadow = true;
+    houseScene.add(flickerLight);
+    
+    // Add scientist shadow plane
+    const shadowGeometry = new THREE.PlaneGeometry(2, 3);
+    const shadowMaterial = new THREE.MeshBasicMaterial({
+        color: 0x000000,
+        transparent: true,
+        opacity: 0
+    });
+    const scientistShadow = new THREE.Mesh(shadowGeometry, shadowMaterial);
+    scientistShadow.position.set(2, 3, -6);
+    scientistShadow.rotation.x = -Math.PI / 6;
+    houseScene.add(scientistShadow);
+    
     // Add detailed trees around the house
     const treeTypes = ['oak', 'pine', 'maple'];
     for (let i = 0; i < 8; i++) {
@@ -1509,7 +1527,9 @@ function createHouseRevealScene() {
         furniture: furniture,
         interiorLights: [interiorLight1, interiorLight2],
         tvGlow: tvGlow,
-        windows: windows
+        windows: windows,
+        flickerLight: flickerLight,
+        scientistShadow: scientistShadow
     };
     
     return houseScene;
@@ -3483,26 +3503,42 @@ function animateCamera(targetPosition, duration) {
 }
 
 function animateFlickeringLights() {
+    if (!scene || !scene.userData || !scene.userData.flickerLight) {
+        console.warn('Flicker light not found in scene userData');
+        return;
+    }
+    
     const flickerLight = scene.userData.flickerLight;
     
     function flicker() {
-        flickerLight.intensity = Math.random() * 2 + 0.5;
-        setTimeout(flicker, Math.random() * 200 + 100);
+        if (flickerLight && currentScene === 'houseReveal') {
+            flickerLight.intensity = Math.random() * 2 + 0.5;
+            setTimeout(flicker, Math.random() * 200 + 100);
+        }
     }
     
     flicker();
 }
 
 function animateScientistShadow() {
+    if (!scene || !scene.userData || !scene.userData.scientistShadow) {
+        console.warn('Scientist shadow not found in scene userData');
+        return;
+    }
+    
     const shadow = scene.userData.scientistShadow;
     
     // Make shadow appear and disappear
     setTimeout(() => {
-        shadow.material.opacity = 0.8;
+        if (shadow && shadow.material) {
+            shadow.material.opacity = 0.8;
+        }
     }, 500);
     
     setTimeout(() => {
-        shadow.material.opacity = 0;
+        if (shadow && shadow.material) {
+            shadow.material.opacity = 0;
+        }
     }, 2000);
 }
 
