@@ -2690,22 +2690,39 @@ function transitionToScene(sceneFunction, delay = 0) {
     if (isTransitioning) return;
     
     isTransitioning = true;
+    console.log('Starting scene transition to:', sceneFunction.name);
     
     // Fade out
     if (fadeElement) fadeElement.style.opacity = '1';
     
     setTimeout(() => {
-        // Hide all UI elements
-        hideAllUI();
-        
-        // Execute scene function
-        sceneFunction();
-        
-        // Fade in
-        setTimeout(() => {
-            if (fadeElement) fadeElement.style.opacity = '0';
+        try {
+            // Hide all UI elements
+            hideAllUI();
+            
+            // Execute scene function
+            console.log('Executing scene function:', sceneFunction.name);
+            sceneFunction();
+            
+            // Verify scene was set properly
+            if (!scene) {
+                console.error('Scene not set after transition!');
+                return;
+            }
+            
+            console.log('Scene transition successful. Current scene:', currentScene, 'Scene children:', scene.children.length);
+            
+            // Fade in
+            setTimeout(() => {
+                if (fadeElement) fadeElement.style.opacity = '0';
+                isTransitioning = false;
+                console.log('Fade in complete for scene:', currentScene);
+            }, 500);
+        } catch (error) {
+            console.error('Error during scene transition:', error);
             isTransitioning = false;
-        }, 500);
+            if (fadeElement) fadeElement.style.opacity = '0';
+        }
     }, 1000 + delay);
 }
 
@@ -2741,7 +2758,7 @@ function startOpeningScene() {
         // Animate camera zoom to house
         animateCamera({ x: 0, y: 5, z: 5 }, 3000);
         
-        // Show subtitle after delay
+        // Visual 1 - Langit Malam & Berita TV
         setTimeout(() => {
             showSubtitle("Seorang ilmuwan listrik terkenal telah menghilang secara misterius.");
         }, 1000);
@@ -2754,9 +2771,10 @@ function startOpeningScene() {
             showSubtitle("Polisi menyerah... namun katanya, hanya mereka yang memahami energi listrik yang bisa mengungkap kebenarannya.");
         }, 7000);
         
+        // Visual 2 - Rumah Redup & Misterius
         setTimeout(() => {
             transitionToScene(startHouseRevealScene);
-        }, 11000);
+        }, 10000);
         
         console.log('Opening scene started successfully');
         
@@ -2789,7 +2807,7 @@ function startHouseRevealScene() {
         animateScientistShadow();
     }, 2000);
     
-    // Show subtitle
+    // Visual 2 - Narasi Ilmuwan (suara rekaman samar)
     setTimeout(() => {
         showSubtitle("Jika kau mendengar ini… maka aku butuh bantuanmu.");
     }, 1000);
@@ -2802,9 +2820,10 @@ function startHouseRevealScene() {
         showSubtitle("Hanya mereka yang memahami listrik yang bisa mengungkap misteri ini.");
     }, 7000);
     
+    // Visual 3 - Perkenalan Karakter Pemain
     setTimeout(() => {
         transitionToScene(startCharacterIntroScene);
-    }, 11000);
+    }, 10000);
 }
 
 function startCharacterIntroScene() {
@@ -2829,17 +2848,20 @@ function startCharacterIntroScene() {
         showSubtitle("Kini, tugasmu adalah menyelidiki rumah ini dan mengungkap rahasia yang tersembunyi di dalamnya.");
     }, 5000);
     
+    // Visual 4 - Judul Game dengan efek listrik
     setTimeout(() => {
         showTitle("⚡ Energy Quest: Misteri Hemat Listrik");
-    }, 9000);
+        playSoundEffect('electricBuzz'); // Efek suara listrik
+    }, 8000);
     
     setTimeout(() => {
         showSubtitle("Selamat datang di Energy Quest: Misteri Hemat Listrik. Perjalananmu dimulai sekarang.");
-    }, 12000);
+    }, 11000);
     
+    // Transisi ke Main Menu
     setTimeout(() => {
         transitionToScene(startMainMenuScene);
-    }, 16000);
+    }, 14000);
 }
 
 function startMainMenuScene() {
@@ -2858,25 +2880,38 @@ function startMainMenuScene() {
 }
 
 function startLivingRoomScene() {
-    hideAllUI();
-    
-    if (!scenes.livingRoom) {
-        scenes.livingRoom = createLivingRoomScene();
+    try {
+        console.log('Starting Living Room Scene (Level 1)...');
+        hideAllUI();
+        
+        // Ensure living room scene exists
+        if (!scenes.livingRoom) {
+            console.log('Creating living room scene...');
+            scenes.livingRoom = createLivingRoomScene();
+        }
+        
+        currentScene = 'livingRoom';
+        scene = scenes.livingRoom;
+        camera.position.set(0, 5, 10);
+        
+        console.log('Living room scene set. Children count:', scene.children.length);
+        
+        // Show narrative text for Level 1
+        showSubtitle("Level 1 - Ruang Tamu: Ruang tamu gelap... Kamu harus menyalakan listrik agar bisa menjelajah lebih jauh.");
+        
+        // Reset puzzle state
+        puzzleState.wiringComplete = false;
+        puzzleState.tvPowered = false;
+        
+        // Setup click interactions for puzzle
+        setupLivingRoomInteractions();
+        
+        console.log('Living room scene started successfully');
+        
+    } catch (error) {
+        console.error('Error starting living room scene:', error);
+        alert('Error starting Level 1: ' + error.message);
     }
-    
-    currentScene = 'livingRoom';
-    scene = scenes.livingRoom;
-    camera.position.set(0, 5, 10);
-    
-    // Show narrative text
-    showSubtitle("Ruang tamu gelap... Kamu harus menyalakan listrik agar bisa menjelajah lebih jauh.");
-    
-    // Reset puzzle state
-    puzzleState.wiringComplete = false;
-    puzzleState.tvPowered = false;
-    
-    // Setup click interactions for puzzle
-    setupLivingRoomInteractions();
 }
 
 function setupLivingRoomInteractions() {
@@ -3005,24 +3040,37 @@ function powerOnTV() {
 }
 
 function startKitchenScene() {
-    hideAllUI();
-    
-    if (!scenes.kitchen) {
-        scenes.kitchen = createKitchenScene();
+    try {
+        console.log('Starting Kitchen Scene (Level 2)...');
+        hideAllUI();
+        
+        // Ensure kitchen scene exists
+        if (!scenes.kitchen) {
+            console.log('Creating kitchen scene...');
+            scenes.kitchen = createKitchenScene();
+        }
+        
+        currentScene = 'kitchen';
+        scene = scenes.kitchen;
+        camera.position.set(0, 5, 10);
+        
+        console.log('Kitchen scene set. Children count:', scene.children.length);
+        
+        // Show narrative text for Level 2
+        showSubtitle("Level 2 - Dapur: Dapur ini penuh peralatan listrik. Gunakanlah dengan bijak agar energi tidak terbuang.");
+        
+        // Reset kitchen efficiency
+        puzzleState.kitchenEfficiency = 0;
+        
+        // Setup click interactions for kitchen
+        setupKitchenInteractions();
+        
+        console.log('Kitchen scene started successfully');
+        
+    } catch (error) {
+        console.error('Error starting kitchen scene:', error);
+        alert('Error starting Level 2: ' + error.message);
     }
-    
-    currentScene = 'kitchen';
-    scene = scenes.kitchen;
-    camera.position.set(0, 5, 10);
-    
-    // Show narrative text
-    showSubtitle("Dapur ini penuh peralatan listrik. Gunakanlah dengan bijak agar energi tidak terbuang.");
-    
-    // Reset kitchen efficiency
-    puzzleState.kitchenEfficiency = 0;
-    
-    // Setup click interactions for kitchen
-    setupKitchenInteractions();
 }
 
 function setupKitchenInteractions() {
@@ -3134,24 +3182,37 @@ function checkKitchenEfficiency() {
 }
 
 function startLabScene() {
-    hideAllUI();
-    
-    if (!scenes.lab) {
-        scenes.lab = createLabScene();
+    try {
+        console.log('Starting Lab Scene (Level 3)...');
+        hideAllUI();
+        
+        // Ensure lab scene exists
+        if (!scenes.lab) {
+            console.log('Creating lab scene...');
+            scenes.lab = createLabScene();
+        }
+        
+        currentScene = 'lab';
+        scene = scenes.lab;
+        camera.position.set(0, 5, 10);
+        
+        console.log('Lab scene set. Children count:', scene.children.length);
+        
+        // Show narrative text for Level 3
+        showSubtitle("Level 3 - Laboratorium: Gunakan simulator ini untuk mengatur penggunaan energi rumah dengan efisien. Selesaikan tantangan agar pintu rahasia terbuka.");
+        
+        // Reset bill amount
+        puzzleState.billAmount = 0;
+        
+        // Setup click interactions for lab
+        setupLabInteractions();
+        
+        console.log('Lab scene started successfully');
+        
+    } catch (error) {
+        console.error('Error starting lab scene:', error);
+        alert('Error starting Level 3: ' + error.message);
     }
-    
-    currentScene = 'lab';
-    scene = scenes.lab;
-    camera.position.set(0, 5, 10);
-    
-    // Show narrative text
-    showSubtitle("Gunakan simulator ini untuk mengatur penggunaan energi rumah dengan efisien. Selesaikan tantangan agar pintu rahasia terbuka.");
-    
-    // Reset bill amount
-    puzzleState.billAmount = 0;
-    
-    // Setup click interactions for lab
-    setupLabInteractions();
 }
 
 function setupLabInteractions() {
@@ -3263,35 +3324,49 @@ function calculateEnergyBill() {
 }
 
 function startQuizScene() {
-    hideAllUI();
-    
-    if (!scenes.quiz) {
-        scenes.quiz = createQuizScene();
-    }
-    
-    currentScene = 'quiz';
-    scene = scenes.quiz;
-    camera.position.set(0, 8, 15);
-    
-    // Show narrative text
-    showSubtitle("Gunakan tiga Kunci Energi untuk membuka pintu. Hanya mereka yang memahami listrik dengan baik yang bisa menyelamatkan sang ilmuwan.");
+    try {
+        console.log('Starting Quiz Scene (Level 4)...');
+        hideAllUI();
+        
+        // Ensure quiz scene exists
+        if (!scenes.quiz) {
+            console.log('Creating quiz scene...');
+            scenes.quiz = createQuizScene();
+        }
+        
+        currentScene = 'quiz';
+        scene = scenes.quiz;
+        camera.position.set(0, 8, 15);
+        
+        console.log('Quiz scene set. Children count:', scene.children.length);
+        
+        // Show narrative text for Level 4
+        showSubtitle("Level 4 - Ruang Bawah Tanah: Gunakan tiga Kunci Energi untuk membuka pintu. Hanya mereka yang memahami listrik dengan baik yang bisa menyelamatkan sang ilmuwan.");
     
     // Reset quiz state
     puzzleState.quizAnswers = [];
     gameState.currentQuestionIndex = 0;
     
-    // Setup quiz questions
-    setupQuizQuestions();
-    
-    // Setup click interactions for quiz
-    setupQuizInteractions();
-    
-    // Place energy keys if player has them
-    placeEnergyKeys();
+        // Setup quiz questions
+        setupQuizQuestions();
+        
+        // Setup click interactions for quiz
+        setupQuizInteractions();
+        
+        // Place energy keys if player has them
+        placeEnergyKeys();
+        
+        console.log('Quiz scene started successfully');
+        
+    } catch (error) {
+        console.error('Error starting quiz scene:', error);
+        alert('Error starting Level 4: ' + error.message);
+    }
 }
 
 function setupQuizQuestions() {
-    gameState.quizQuestions = [
+    // All available quiz questions (20 questions as per design document)
+    const allQuestions = [
         {
             question: "Apa yang terjadi jika rangkaian listrik terbuka?",
             options: ["Arus mengalir normal", "Arus tidak mengalir", "Arus meningkat", "Lampu menyala"],
@@ -3316,8 +3391,124 @@ function setupQuizQuestions() {
             question: "Satuan yang digunakan untuk mengukur daya listrik?",
             options: ["Volt", "Ampere", "Watt", "Ohm"],
             correct: 2
+        },
+        {
+            question: "Rumus untuk menghitung energi listrik adalah?",
+            options: ["P = V × I", "E = P × t", "V = I × R", "P = I²R"],
+            correct: 1
+        },
+        {
+            question: "Cara menghemat energi saat menggunakan AC?",
+            options: ["Set suhu 16°C", "Set suhu 25°C", "Biarkan pintu terbuka", "Nyalakan 24 jam"],
+            correct: 1
+        },
+        {
+            question: "Perangkat yang mengubah energi listrik menjadi cahaya?",
+            options: ["Motor", "Lampu", "Speaker", "Kulkas"],
+            correct: 1
+        },
+        {
+            question: "Mengapa kita perlu menghemat energi listrik?",
+            options: ["Supaya gelap", "Mengurangi tagihan", "Merusak peralatan", "Tidak perlu hemat"],
+            correct: 1
+        },
+        {
+            question: "Komponen utama dalam rangkaian listrik sederhana?",
+            options: ["Sumber, beban, penghantar", "Hanya lampu", "Hanya baterai", "Hanya kabel"],
+            correct: 0
+        },
+        {
+            question: "Lampu LED lebih hemat energi karena?",
+            options: ["Lebih terang", "Konsumsi daya rendah", "Lebih mahal", "Warna lebih bagus"],
+            correct: 1
+        },
+        {
+            question: "Apa yang dimaksud dengan short circuit?",
+            options: ["Rangkaian normal", "Hubung singkat", "Rangkaian terbuka", "Tegangan tinggi"],
+            correct: 1
+        },
+        {
+            question: "Cara aman menggunakan listrik di rumah?",
+            options: ["Tangan basah pegang kabel", "Gunakan stop kontak berlebihan", "Matikan MCB saat perbaikan", "Abaikan kabel rusak"],
+            correct: 2
+        },
+        {
+            question: "Fungsi MCB (Miniature Circuit Breaker)?",
+            options: ["Menambah tegangan", "Proteksi dari arus berlebih", "Menyimpan listrik", "Mengurangi tagihan"],
+            correct: 1
+        },
+        {
+            question: "Waktu terbaik menggunakan peralatan listrik berdaya tinggi?",
+            options: ["Siang hari (peak time)", "Malam hari (off-peak)", "Kapan saja sama", "Tidak boleh digunakan"],
+            correct: 1
+        },
+        {
+            question: "Apa itu energi terbarukan?",
+            options: ["Energi yang habis", "Energi yang dapat diperbaharui", "Energi listrik saja", "Energi dari batu bara"],
+            correct: 1
+        },
+        {
+            question: "Contoh energi terbarukan untuk listrik?",
+            options: ["Minyak bumi", "Batu bara", "Panel surya", "Gas alam"],
+            correct: 2
+        },
+        {
+            question: "Mengapa kulkas tidak boleh dibuka terlalu lama?",
+            options: ["Makanan basi", "Boros energi untuk mendinginkan kembali", "Rusak", "Berbahaya"],
+            correct: 1
+        },
+        {
+            question: "Cara menghemat energi saat menyetrika?",
+            options: ["Setrika satu per satu", "Kumpulkan baju, setrika sekaligus", "Setrika dengan suhu maksimal", "Setrika sambil AC menyala"],
+            correct: 1
+        },
+        {
+            question: "Apa dampak pemborosan energi listrik?",
+            options: ["Tagihan naik & polusi meningkat", "Tidak ada dampak", "Peralatan awet", "Rumah lebih terang"],
+            correct: 0
+        },
+        {
+            question: "Apa itu kWh (kilowatt hour)?",
+            options: ["Satuan daya", "Satuan energi", "Satuan tegangan", "Satuan arus"],
+            correct: 1
+        },
+        {
+            question: "Cara terbaik menggunakan lampu di siang hari?",
+            options: ["Nyalakan semua lampu", "Gunakan cahaya alami", "Gunakan lilin", "Tutup semua jendela"],
+            correct: 1
+        },
+        {
+            question: "Peralatan elektronik yang sebaiknya dicabut saat tidak digunakan?",
+            options: ["Kulkas", "Charger HP", "Jam dinding", "Smoke detector"],
+            correct: 1
+        },
+        {
+            question: "Apa fungsi stabilizer listrik?",
+            options: ["Menambah tegangan", "Menstabilkan tegangan", "Mengurangi arus", "Menyimpan energi"],
+            correct: 1
+        },
+        {
+            question: "Mengapa air dan listrik berbahaya jika bertemu?",
+            options: ["Air rusak", "Listrik padam", "Risiko tersengat listrik", "Tidak berbahaya"],
+            correct: 2
         }
     ];
+    
+    // Fisher-Yates Shuffle algorithm untuk mengacak soal
+    function fisherYatesShuffle(array) {
+        const shuffled = [...array]; // Copy array
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+    
+    // Acak semua soal dan ambil 10 soal untuk quiz
+    const shuffledQuestions = fisherYatesShuffle(allQuestions);
+    gameState.quizQuestions = shuffledQuestions.slice(0, 10);
+    
+    console.log('Quiz questions shuffled. Total questions:', gameState.quizQuestions.length);
 }
 
 function setupQuizInteractions() {
@@ -3543,6 +3734,11 @@ function animateScientistShadow() {
 }
 
 function animateGateOpening() {
+    if (!scene || !scene.userData || !scene.userData.gate) {
+        console.warn('Gate not found in scene userData');
+        return;
+    }
+    
     const gate = scene.userData.gate;
     
     // Rotate gate to open
@@ -3555,7 +3751,9 @@ function animateGateOpening() {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
         
-        gate.rotation.y = startRotation + (targetRotation - startRotation) * progress;
+        if (gate && currentScene === 'characterIntro') {
+            gate.rotation.y = startRotation + (targetRotation - startRotation) * progress;
+        }
         
         if (progress < 1) {
             requestAnimationFrame(updateGate);
@@ -3566,12 +3764,16 @@ function animateGateOpening() {
 }
 
 function animateMenuParticles() {
+    if (!scene || !scene.userData || !scene.userData.particles) {
+        console.warn('Menu particles not found in scene userData');
+        return;
+    }
+    
     const particles = scene.userData.particles;
     
     function updateParticles() {
-        particles.rotation.y += 0.01;
-        
-        if (currentScene === 'mainMenu') {
+        if (particles && currentScene === 'mainMenu') {
+            particles.rotation.y += 0.01;
             requestAnimationFrame(updateParticles);
         }
     }
