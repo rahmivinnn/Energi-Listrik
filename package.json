@@ -1,7 +1,7 @@
 {
   "name": "energy-quest-game",
   "version": "1.0.0",
-  "description": "Energy Quest: Misteri Hemat Listrik - Game edukasi tentang penghematan energi listrik",
+  "description": "Game edukasi puzzle adventure tentang efisiensi energi listrik untuk siswa SMP dengan FSM dan Fisher-Yates Shuffle",
   "main": "index.html",
   "scripts": {
     "dev": "python3 -m http.server 8000",
@@ -12,8 +12,17 @@
     "game",
     "education",
     "energy",
-    "three.js",
-    "javascript"
+    "efficiency", 
+    "electricity",
+    "javascript",
+    "html5",
+    "mobile",
+    "SMP",
+    "Indonesia",
+    "puzzle",
+    "adventure",
+    "finite-state-machine",
+    "fisher-yates-shuffle"
   ],
   "author": "Energy Quest Team",
   "license": "MIT",

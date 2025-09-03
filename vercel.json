@@ -1,13 +1,29 @@
 {
   "version": 2,
-  "name": "energy-quest-game",
+  "name": "energy-quest-misteri-hemat-listrik",
   "builds": [
     {
       "src": "index.html",
       "use": "@vercel/static"
+    },
+    {
+      "src": "js/**/*.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "audio/**/*",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/energy-quest",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/game",
+      "dest": "/index.html"
+    },
     {
       "src": "/(.*)",
       "dest": "/$1"
@@ -18,17 +34,34 @@
       "source": "/(.*)",
       "headers": [
         {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options", 
+          "value": "SAMEORIGIN"
+        },
+        {
           "key": "Cache-Control",
           "value": "public, max-age=86400"
         }
       ]
     },
     {
-      "source": "/game.js",
+      "source": "/js/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=31536000"
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/audio/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     }
