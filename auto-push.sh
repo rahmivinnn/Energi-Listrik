@@ -29,7 +29,8 @@ git commit -m "$COMMIT_MSG"
 
 # Push to GitHub
 echo "🚀 Pushing to GitHub..."
-git push origin master
+current_branch=$(git branch --show-current)
+git push origin $current_branch
 
 # Check if push was successful
 if [ $? -eq 0 ]; then
