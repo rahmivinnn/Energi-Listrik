@@ -4,136 +4,177 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Energy Quest: Misteri Hemat Listrik</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background: #000;
-            font-family: 'Arial', sans-serif;
-        }
-        
-        #gameContainer {
-            width: 100vw;
-            height: 100vh;
-            position: relative;
-        }
-        
-        #ui {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 100;
-        }
-        
-        .subtitle {
-            position: absolute;
-            bottom: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            font-size: 18px;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            border-radius: 5px;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-            max-width: 80%;
-        }
-        
-        .title {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #FFD700;
-            font-size: 48px;
-            font-weight: bold;
-            text-align: center;
-            text-shadow: 0 0 20px #FFD700;
-            opacity: 0;
-            transition: opacity 2s ease-in-out;
-        }
-        
-        .menu {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-        }
-        
-        .menu-button {
-            display: block;
-            margin: 15px auto;
-            padding: 15px 30px;
-            background: linear-gradient(45deg, #1e3c72, #2a5298);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            pointer-events: auto;
-            min-width: 200px;
-        }
-        
-        .menu-button:hover {
-            background: linear-gradient(45deg, #2a5298, #1e3c72);
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(42, 82, 152, 0.4);
-        }
-        
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 24px;
-            z-index: 1000;
-            display: block;
-        }
-        
-        .fade-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-            pointer-events: none;
-            z-index: 200;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    <meta name="description" content="Game edukasi tentang efisiensi energi listrik untuk siswa SMP">
 </head>
 <body>
-    <div id="gameContainer">
-        <div id="ui">
-            <div id="loading" class="loading">Memuat...</div>
-            <div id="subtitle" class="subtitle"></div>
-            <div id="title" class="title"></div>
-            <div id="fade-overlay" class="fade-overlay"></div>
-            <div id="menu" class="menu">
-                <button class="menu-button" onclick="startGame()">▶️ Mulai Permainan</button>
-                <button class="menu-button" onclick="continueGame()">🔁 Lanjutkan</button>
-                <button class="menu-button" onclick="showOpeningScene()">🎬 Lihat Opening</button>
-                <button class="menu-button" onclick="showSettings()">⚙️ Pengaturan</button>
-                <button class="menu-button" onclick="showAbout()">ℹ️ Tentang</button>
+    <!-- Game Container -->
+    <div id="game-container">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="screen active">
+            <div class="loading-content">
+                <div class="energy-logo">
+                    <div class="lightning-bolt">⚡</div>
+                    <h1>ENERGY QUEST</h1>
+                    <h2>Misteri Hemat Listrik</h2>
+                </div>
+                <div class="loading-bar">
+                    <div class="loading-progress" id="loading-progress"></div>
+                </div>
+                <div class="loading-text" id="loading-text">Memuat game...</div>
             </div>
         </div>
+
+        <!-- Opening Animation Screen -->
+        <div id="opening-screen" class="screen">
+            <canvas id="opening-canvas" width="1280" height="720"></canvas>
+            <div class="subtitles" id="subtitles"></div>
+        </div>
+
+        <!-- Main Menu Screen -->
+        <div id="main-menu-screen" class="screen">
+            <div class="menu-bg"></div>
+            <div class="menu-content">
+                <div class="game-title">
+                    <h1>ENERGY QUEST</h1>
+                    <h2>Misteri Hemat Listrik</h2>
+                </div>
+                <div class="menu-buttons">
+                    <button id="start-game-btn" class="menu-btn primary">🎮 Mulai Permainan</button>
+                    <button id="continue-game-btn" class="menu-btn secondary">📖 Lanjutkan</button>
+                    <button id="settings-btn" class="menu-btn secondary">⚙️ Pengaturan</button>
+                    <button id="about-btn" class="menu-btn secondary">ℹ️ Tentang</button>
+                </div>
+                <div class="energy-keys-display">
+                    <span>Kunci Energi: </span>
+                    <div class="key-slots">
+                        <div class="key-slot" data-key="0">🔑</div>
+                        <div class="key-slot" data-key="1">🔑</div>
+                        <div class="key-slot" data-key="2">🔑</div>
+                        <div class="key-slot" data-key="3">🔑</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="game-hud">
+                <div class="level-info">
+                    <h3 id="level-title">Level 1: Ruang Tamu</h3>
+                    <p id="level-objective">Nyalakan listrik di ruang tamu</p>
+                </div>
+                <div class="energy-keys-hud">
+                    <div class="key-icon" data-key="0">🔑</div>
+                    <div class="key-icon" data-key="1">🔑</div>
+                    <div class="key-icon" data-key="2">🔑</div>
+                    <div class="key-icon" data-key="3">🔑</div>
+                </div>
+                <div class="controls">
+                    <button id="pause-btn">⏸️</button>
+                    <button id="menu-btn">🏠</button>
+                </div>
+            </div>
+
+            <div class="game-area">
+                <canvas id="game-canvas" width="1280" height="720"></canvas>
+                
+                <!-- Puzzle UI Overlays -->
+                <div class="puzzle-overlay" id="puzzle-overlay"></div>
+            </div>
+
+            <!-- Power Meter (Kitchen Level) -->
+            <div class="power-meter" id="power-meter" style="display: none;">
+                <div class="meter-label">Efisiensi Energi</div>
+                <div class="meter-bar">
+                    <div class="meter-fill" id="meter-fill"></div>
+                </div>
+                <div class="meter-status" id="meter-status">SEDANG</div>
+            </div>
+        </div>
+
+        <!-- Settings Screen -->
+        <div id="settings-screen" class="screen">
+            <div class="settings-content">
+                <h2>Pengaturan</h2>
+                <div class="settings-group">
+                    <h3>Audio</h3>
+                    <label>Volume Utama: <input type="range" id="master-volume" min="0" max="100" value="100"></label>
+                    <label>Musik: <input type="range" id="music-volume" min="0" max="100" value="70"></label>
+                    <label>Efek Suara: <input type="range" id="sfx-volume" min="0" max="100" value="100"></label>
+                </div>
+                <div class="settings-group">
+                    <h3>Gameplay</h3>
+                    <label><input type="checkbox" id="subtitles-enabled" checked> Subtitle</label>
+                    <label><input type="checkbox" id="tutorial-enabled" checked> Tutorial</label>
+                </div>
+                <button id="close-settings" class="btn-close">Tutup</button>
+            </div>
+        </div>
+
+        <!-- About Screen -->
+        <div id="about-screen" class="screen">
+            <div class="about-content">
+                <h2>Tentang Game</h2>
+                <div class="about-info">
+                    <h3>Energy Quest: Misteri Hemat Listrik</h3>
+                    <p>Game edukasi untuk siswa SMP tentang efisiensi energi listrik</p>
+                    <h4>Fitur:</h4>
+                    <ul>
+                        <li>4 Level edukatif dengan puzzle unik</li>
+                        <li>Sistem perhitungan energi real-time</li>
+                        <li>Quiz dengan Fisher-Yates Shuffle</li>
+                        <li>Finite State Machine gameplay</li>
+                    </ul>
+                </div>
+                <button id="close-about" class="btn-close">Tutup</button>
+            </div>
+        </div>
+
+        <!-- Ending Screen -->
+        <div id="ending-screen" class="screen">
+            <div class="ending-content">
+                <h1>MISI SELESAI!</h1>
+                <div id="ending-stats"></div>
+                <p>Selamat! Kamu telah menguasai efisiensi energi listrik!</p>
+                <div class="ending-buttons">
+                    <button id="play-again-btn" class="menu-btn primary">Main Lagi</button>
+                    <button id="back-to-menu-btn" class="menu-btn secondary">Menu Utama</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Educational Panel -->
+        <div id="educational-panel" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="edu-title">Informasi Edukasi</h3>
+                    <button id="close-edu-panel">×</button>
+                </div>
+                <div id="edu-content"></div>
+            </div>
+        </div>
+
+        <!-- Feedback Toast -->
+        <div id="feedback-toast" class="toast">
+            <div class="toast-icon" id="toast-icon"></div>
+            <div class="toast-message" id="toast-message"></div>
+        </div>
     </div>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="game.js"></script>
+
+    <!-- Audio -->
+    <audio id="background-music" loop></audio>
+    <audio id="sfx-audio"></audio>
+
+    <!-- Scripts -->
+    <script src="js/game-constants.js"></script>
+    <script src="js/finite-state-machine.js"></script>
+    <script src="js/fisher-yates-shuffle.js"></script>
+    <script src="js/energy-calculator.js"></script>
+    <script src="js/audio-manager.js"></script>
+    <script src="js/ui-manager.js"></script>
+    <script src="js/game-data.js"></script>
+    <script src="js/game-engine.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
