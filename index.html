@@ -29,6 +29,45 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
         
+        .game-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.9);
+            margin-bottom: 10px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 3px 3px 6px rgba(0,0,0,0.9), 0 0 10px #ff6b6b; }
+            to { text-shadow: 3px 3px 6px rgba(0,0,0,0.9), 0 0 20px #ff6b6b, 0 0 30px #ff6b6b; }
+        }
+        
+        .stats {
+            background: rgba(0,0,0,0.4);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        
+        .stats div {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30px;
+            color: #ff6b6b;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none;
+            z-index: 200;
+        }
+        
         #controls {
             position: absolute;
             bottom: 20px;
@@ -77,20 +116,30 @@
         </div>
         
         <div id="ui">
-            <div>🎮 Realistic 3D Game Simulation</div>
-            <div id="fps">FPS: --</div>
-            <div id="objects">Objects: --</div>
+            <div class="game-title">🎮 EPIC 3D ADVENTURE</div>
+            <div class="stats">
+                <div id="fps">FPS: --</div>
+                <div id="objects">Objects: --</div>
+                <div id="health">❤️ Health: 100</div>
+                <div id="score">⭐ Score: 0</div>
+                <div id="ammo">🔫 Ammo: 30</div>
+            </div>
+            <div id="crosshair">+</div>
         </div>
         
         <div id="controls">
-            <strong>Controls:</strong><br>
+            <strong>🎮 EPIC CONTROLS:</strong><br>
             WASD - Move<br>
             Mouse - Look around<br>
             Space - Jump<br>
             Shift - Run<br>
-            R - Reset position<br>
-            L - Toggle lighting<br>
-            P - Toggle physics
+            Left Click - Shoot<br>
+            Right Click - Aim<br>
+            R - Reload<br>
+            G - Throw Grenade<br>
+            E - Interact<br>
+            Tab - Show Scoreboard<br>
+            ESC - Pause Game
         </div>
     </div>
 
@@ -101,7 +150,11 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/SSAOPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/physics/Ammo.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/FilmPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/FXAAPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/audio/AudioListener.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/audio/PositionalAudio.js"></script>
     <script src="game.js"></script>
 </body>
 </html>
