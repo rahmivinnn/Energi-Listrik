@@ -1,38 +1,31 @@
-// EPIC 3D ADVENTURE GAME
-class EpicGame3D {
+// ELECTRICAL FLOW SIMULATOR 3D
+class ElectricalFlowSimulator {
     constructor() {
         this.scene = null;
         this.camera = null;
         this.renderer = null;
         this.controls = null;
         this.composer = null;
-        this.objects = [];
-        this.enemies = [];
-        this.bullets = [];
-        this.particles = [];
-        this.explosions = [];
         
-        // Game state
-        this.gameState = {
-            health: 100,
-            score: 0,
-            ammo: 30,
-            maxAmmo: 30,
-            isPaused: false,
-            isAiming: false,
-            isReloading: false,
-            wave: 1,
-            enemiesKilled: 0
-        };
+        // Electrical components
+        this.generators = [];
+        this.transformers = [];
+        this.switches = [];
+        this.resistors = [];
+        this.capacitors = [];
+        this.wires = [];
+        this.loads = [];
+        this.electricalFlow = [];
         
-        // Player state
-        this.player = {
-            velocity: new THREE.Vector3(),
-            onGround: false,
-            speed: 8,
-            runSpeed: 15,
-            jumpForce: 20,
-            position: new THREE.Vector3(0, 10, 0)
+        // Electrical properties
+        this.electricalState = {
+            voltage: 0,
+            current: 0,
+            power: 0,
+            resistance: 0,
+            efficiency: 0,
+            circuitClosed: false,
+            frequency: 50 // Hz
         };
         
         // Performance tracking
@@ -41,6 +34,15 @@ class EpicGame3D {
             fps: 0,
             frameCount: 0,
             lastTime: 0
+        };
+        
+        // Player state
+        this.player = {
+            velocity: new THREE.Vector3(),
+            onGround: false,
+            speed: 8,
+            runSpeed: 15,
+            jumpForce: 20
         };
         
         // Input handling
@@ -59,23 +61,21 @@ class EpicGame3D {
             await this.setupScene();
             await this.setupLighting();
             await this.setupAudio();
-            await this.createWorld();
+            await this.createElectricalWorld();
             await this.setupPostProcessing();
-            await this.setupPhysics();
             this.setupControls();
             this.setupEventListeners();
-            this.spawnEnemies();
             this.hideLoading();
             this.animate();
         } catch (error) {
-            console.error('Failed to initialize game:', error);
+            console.error('Failed to initialize electrical simulator:', error);
         }
     }
     
     async setupScene() {
-        // Create scene
+        // Create scene with electrical atmosphere
         this.scene = new THREE.Scene();
-        this.scene.fog = new THREE.Fog(0x1a1a2e, 30, 150);
+        this.scene.fog = new THREE.Fog(0x0a0a1a, 20, 100);
         
         // Create camera
         this.camera = new THREE.PerspectiveCamera(
@@ -84,9 +84,9 @@ class EpicGame3D {
             0.1, 
             1000
         );
-        this.camera.position.set(0, 10, 0);
+        this.camera.position.set(0, 15, 20);
         
-        // Create renderer
+        // Create renderer with electrical theme
         this.renderer = new THREE.WebGLRenderer({ 
             antialias: true,
             powerPreference: "high-performance"
@@ -97,7 +97,7 @@ class EpicGame3D {
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.renderer.outputEncoding = THREE.sRGBEncoding;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        this.renderer.toneMappingExposure = 1.5;
+        this.renderer.toneMappingExposure = 1.8;
         
         document.getElementById('gameContainer').appendChild(this.renderer.domElement);
         
@@ -107,422 +107,449 @@ class EpicGame3D {
     }
     
     async setupLighting() {
-        // Ambient light
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.2);
+        // Electrical ambient light
+        const ambientLight = new THREE.AmbientLight(0x404080, 0.3);
         this.scene.add(ambientLight);
         
-        // Directional light (sun)
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-        directionalLight.position.set(50, 100, 50);
-        directionalLight.castShadow = true;
-        directionalLight.shadow.mapSize.width = 4096;
-        directionalLight.shadow.mapSize.height = 4096;
-        directionalLight.shadow.camera.near = 0.5;
-        directionalLight.shadow.camera.far = 300;
-        directionalLight.shadow.camera.left = -150;
-        directionalLight.shadow.camera.right = 150;
-        directionalLight.shadow.camera.top = 150;
-        directionalLight.shadow.camera.bottom = -150;
-        this.scene.add(directionalLight);
+        // Main electrical light (like a power station)
+        const mainLight = new THREE.DirectionalLight(0x00ffff, 2);
+        mainLight.position.set(0, 50, 0);
+        mainLight.castShadow = true;
+        mainLight.shadow.mapSize.width = 2048;
+        mainLight.shadow.mapSize.height = 2048;
+        this.scene.add(mainLight);
         
-        // Dynamic point lights
-        this.pointLights = [];
-        for (let i = 0; i < 5; i++) {
+        // Electrical point lights
+        this.electricalLights = [];
+        for (let i = 0; i < 8; i++) {
             const pointLight = new THREE.PointLight(
-                new THREE.Color().setHSL(Math.random(), 0.8, 0.8),
-                1.5, 
-                50
+                new THREE.Color().setHSL(0.6 + Math.random() * 0.2, 0.8, 0.8),
+                2, 
+                30
             );
             pointLight.position.set(
-                (Math.random() - 0.5) * 200,
+                (Math.random() - 0.5) * 100,
                 5 + Math.random() * 10,
-                (Math.random() - 0.5) * 200
+                (Math.random() - 0.5) * 100
             );
             pointLight.castShadow = true;
             this.scene.add(pointLight);
-            this.pointLights.push(pointLight);
+            this.electricalLights.push(pointLight);
         }
         
-        // Hemisphere light for atmosphere
-        const hemisphereLight = new THREE.HemisphereLight(0x87CEEB, 0x98FB98, 0.6);
+        // Electrical atmosphere
+        const hemisphereLight = new THREE.HemisphereLight(0x004080, 0x001040, 0.5);
         this.scene.add(hemisphereLight);
     }
     
     async setupAudio() {
         this.audioListener = new THREE.AudioListener();
         this.camera.add(this.audioListener);
-        
-        // Create audio context for sound effects
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
     
-    async createWorld() {
-        await this.createTerrain();
-        await this.createBuildings();
-        await this.createVehicles();
-        await this.createCharacters();
-        await this.createEnvironment();
-        await this.createWeapons();
-        await this.createPowerUps();
+    async createElectricalWorld() {
+        await this.createPowerStation();
+        await this.createGenerators();
+        await this.createTransformers();
+        await this.createSwitches();
+        await this.createResistors();
+        await this.createCapacitors();
+        await this.createWires();
+        await this.createLoads();
+        await this.createElectricalFlow();
     }
     
-    async createTerrain() {
-        // Create detailed terrain
-        const groundGeometry = new THREE.PlaneGeometry(300, 300, 200, 200);
-        
-        // Add height variation
-        const vertices = groundGeometry.attributes.position.array;
-        for (let i = 0; i < vertices.length; i += 3) {
-            vertices[i + 2] = Math.random() * 3 - 1.5; // z coordinate (height)
-        }
-        groundGeometry.attributes.position.needsUpdate = true;
-        groundGeometry.computeVertexNormals();
-        
-        const groundMaterial = new THREE.MeshPhongMaterial({ 
-            color: 0x2d5016,
-            shininess: 10
+    async createPowerStation() {
+        // Main power station building
+        const stationGeometry = new THREE.BoxGeometry(20, 15, 20);
+        const stationMaterial = new THREE.MeshPhongMaterial({ 
+            color: 0x2a2a2a,
+            shininess: 50
         });
+        const station = new THREE.Mesh(stationGeometry, stationMaterial);
+        station.position.set(0, 7.5, 0);
+        station.castShadow = true;
+        station.receiveShadow = true;
+        this.scene.add(station);
         
-        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-        ground.rotation.x = -Math.PI / 2;
-        ground.receiveShadow = true;
-        this.scene.add(ground);
-        this.objects.push(ground);
-        
-        // Add detailed grass
-        for (let i = 0; i < 200; i++) {
-            const grassGeometry = new THREE.ConeGeometry(0.3, 1.5, 6);
-            const grassMaterial = new THREE.MeshPhongMaterial({ 
-                color: new THREE.Color().setHSL(0.3, 0.8, 0.4 + Math.random() * 0.3)
+        // Power station lights
+        for (let i = 0; i < 4; i++) {
+            const lightGeometry = new THREE.SphereGeometry(0.5, 8, 8);
+            const lightMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0x00ffff,
+                transparent: true,
+                opacity: 0.8
             });
-            const grass = new THREE.Mesh(grassGeometry, grassMaterial);
-            grass.position.set(
-                (Math.random() - 0.5) * 280,
-                0.75,
-                (Math.random() - 0.5) * 280
+            const light = new THREE.Mesh(lightGeometry, lightMaterial);
+            light.position.set(
+                (i % 2 === 0 ? -8 : 8),
+                12,
+                (i < 2 ? -8 : 8)
             );
-            grass.castShadow = true;
-            this.scene.add(grass);
-            this.objects.push(grass);
+            this.scene.add(light);
         }
     }
     
-    async createBuildings() {
-        // Create epic buildings
-        for (let i = 0; i < 25; i++) {
-            const width = 10 + Math.random() * 20;
-            const height = 20 + Math.random() * 40;
-            const depth = 10 + Math.random() * 20;
+    async createGenerators() {
+        // Create electrical generators
+        for (let i = 0; i < 5; i++) {
+            const generatorGroup = new THREE.Group();
             
-            const buildingGeometry = new THREE.BoxGeometry(width, height, depth);
-            const buildingMaterial = new THREE.MeshPhongMaterial({ 
-                color: new THREE.Color().setHSL(0.1, 0.3, 0.3 + Math.random() * 0.4),
-                shininess: 50
-            });
-            const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
-            
-            building.position.set(
-                (Math.random() - 0.5) * 250,
-                height / 2,
-                (Math.random() - 0.5) * 250
-            );
-            
-            building.castShadow = true;
-            building.receiveShadow = true;
-            this.scene.add(building);
-            this.objects.push(building);
-            
-            // Add glowing windows
-            for (let j = 0; j < 5; j++) {
-                const windowGeometry = new THREE.PlaneGeometry(1.5, 2);
-                const windowMaterial = new THREE.MeshBasicMaterial({ 
-                    color: new THREE.Color().setHSL(0.6, 0.8, 0.8),
-                    transparent: true,
-                    opacity: 0.8
-                });
-                const window = new THREE.Mesh(windowGeometry, windowMaterial);
-                window.position.set(
-                    building.position.x + (Math.random() - 0.5) * width,
-                    building.position.y + (Math.random() - 0.5) * height,
-                    building.position.z + depth / 2 + 0.01
-                );
-                this.scene.add(window);
-                this.objects.push(window);
-            }
-        }
-    }
-    
-    async createVehicles() {
-        // Create epic vehicles
-        for (let i = 0; i < 15; i++) {
-            const carGroup = new THREE.Group();
-            
-            // Car body
-            const carGeometry = new THREE.BoxGeometry(5, 2.5, 10);
-            const carMaterial = new THREE.MeshPhongMaterial({ 
-                color: new THREE.Color().setHSL(Math.random(), 0.8, 0.5),
-                shininess: 100
-            });
-            const car = new THREE.Mesh(carGeometry, carMaterial);
-            
-            // Wheels
-            for (let j = 0; j < 4; j++) {
-                const wheelGeometry = new THREE.CylinderGeometry(1, 1, 1, 12);
-                const wheelMaterial = new THREE.MeshPhongMaterial({ color: 0x1a1a1a });
-                const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial);
-                
-                const wheelPositions = [
-                    [-2, -1, -4], [2, -1, -4],
-                    [-2, -1, 4], [2, -1, 4]
-                ];
-                
-                wheel.position.set(wheelPositions[j][0], wheelPositions[j][1], wheelPositions[j][2]);
-                wheel.rotation.z = Math.PI / 2;
-                carGroup.add(wheel);
-            }
-            
-            carGroup.add(car);
-            carGroup.position.set(
-                (Math.random() - 0.5) * 200,
-                1.25,
-                (Math.random() - 0.5) * 200
-            );
-            
-            carGroup.castShadow = true;
-            carGroup.receiveShadow = true;
-            this.scene.add(carGroup);
-            this.objects.push(carGroup);
-        }
-    }
-    
-    async createCharacters() {
-        // Create NPCs
-        for (let i = 0; i < 20; i++) {
-            const character = new THREE.Group();
-            
-            // Body
-            const bodyGeometry = new THREE.CylinderGeometry(0.6, 0.6, 3.5, 8);
+            // Generator body
+            const bodyGeometry = new THREE.CylinderGeometry(2, 2, 4, 12);
             const bodyMaterial = new THREE.MeshPhongMaterial({ 
-                color: new THREE.Color().setHSL(Math.random(), 0.4, 0.6)
-            });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            
-            // Head
-            const headGeometry = new THREE.SphereGeometry(0.7, 12, 8);
-            const headMaterial = new THREE.MeshPhongMaterial({ 
-                color: new THREE.Color().setHSL(0.1, 0.5, 0.8)
-            });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            
-            body.position.y = 1.75;
-            head.position.y = 4;
-            
-            character.add(body);
-            character.add(head);
-            
-            character.position.set(
-                (Math.random() - 0.5) * 200,
-                0,
-                (Math.random() - 0.5) * 200
-            );
-            
-            character.castShadow = true;
-            character.receiveShadow = true;
-            this.scene.add(character);
-            this.objects.push(character);
-        }
-    }
-    
-    async createEnvironment() {
-        // Create epic trees
-        for (let i = 0; i < 50; i++) {
-            const treeGroup = new THREE.Group();
-            
-            // Trunk
-            const trunkGeometry = new THREE.CylinderGeometry(0.5, 0.8, 12, 8);
-            const trunkMaterial = new THREE.MeshPhongMaterial({ 
-                color: new THREE.Color().setHSL(0.1, 0.6, 0.3)
-            });
-            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-            trunk.position.y = 6;
-            trunk.castShadow = true;
-            
-            // Leaves
-            const leavesGeometry = new THREE.SphereGeometry(4, 12, 8);
-            const leavesMaterial = new THREE.MeshPhongMaterial({ 
-                color: new THREE.Color().setHSL(0.3, 0.8, 0.4)
-            });
-            const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
-            leaves.position.y = 14;
-            leaves.castShadow = true;
-            
-            treeGroup.add(trunk);
-            treeGroup.add(leaves);
-            
-            treeGroup.position.set(
-                (Math.random() - 0.5) * 250,
-                0,
-                (Math.random() - 0.5) * 250
-            );
-            
-            this.scene.add(treeGroup);
-            this.objects.push(treeGroup);
-        }
-        
-        // Create rocks and obstacles
-        for (let i = 0; i < 30; i++) {
-            const rockGeometry = new THREE.DodecahedronGeometry(2 + Math.random() * 3);
-            const rockMaterial = new THREE.MeshPhongMaterial({ 
-                color: new THREE.Color().setHSL(0.1, 0.2, 0.4),
-                shininess: 5
-            });
-            const rock = new THREE.Mesh(rockGeometry, rockMaterial);
-            
-            rock.position.set(
-                (Math.random() - 0.5) * 220,
-                1,
-                (Math.random() - 0.5) * 220
-            );
-            rock.rotation.set(
-                Math.random() * Math.PI,
-                Math.random() * Math.PI,
-                Math.random() * Math.PI
-            );
-            
-            rock.castShadow = true;
-            rock.receiveShadow = true;
-            this.scene.add(rock);
-            this.objects.push(rock);
-        }
-    }
-    
-    async createWeapons() {
-        // Create weapon pickup points
-        for (let i = 0; i < 10; i++) {
-            const weaponGeometry = new THREE.BoxGeometry(1, 0.5, 4);
-            const weaponMaterial = new THREE.MeshPhongMaterial({ 
                 color: 0x444444,
                 shininess: 100
             });
-            const weapon = new THREE.Mesh(weaponGeometry, weaponMaterial);
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
             
-            weapon.position.set(
-                (Math.random() - 0.5) * 200,
-                1,
-                (Math.random() - 0.5) * 200
-            );
-            
-            weapon.castShadow = true;
-            weapon.receiveShadow = true;
-            this.scene.add(weapon);
-            this.objects.push(weapon);
-        }
-    }
-    
-    async createPowerUps() {
-        // Create power-up items
-        for (let i = 0; i < 15; i++) {
-            const powerUpGeometry = new THREE.SphereGeometry(0.8, 12, 8);
-            const powerUpMaterial = new THREE.MeshPhongMaterial({ 
-                color: new THREE.Color().setHSL(Math.random(), 0.8, 0.7),
+            // Generator rotor
+            const rotorGeometry = new THREE.CylinderGeometry(1.5, 1.5, 0.5, 8);
+            const rotorMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x888888,
                 shininess: 100
             });
-            const powerUp = new THREE.Mesh(powerUpGeometry, powerUpMaterial);
+            const rotor = new THREE.Mesh(rotorGeometry, rotorMaterial);
+            rotor.position.y = 2.25;
             
-            powerUp.position.set(
-                (Math.random() - 0.5) * 200,
-                1,
-                (Math.random() - 0.5) * 200
+            generatorGroup.add(body);
+            generatorGroup.add(rotor);
+            
+            generatorGroup.position.set(
+                -30 + i * 15,
+                2,
+                0
             );
             
-            powerUp.castShadow = true;
-            powerUp.receiveShadow = true;
-            this.scene.add(powerUp);
-            this.objects.push(powerUp);
+            generatorGroup.castShadow = true;
+            generatorGroup.receiveShadow = true;
+            this.scene.add(generatorGroup);
+            
+            generatorGroup.userData = {
+                type: 'generator',
+                voltage: 220,
+                frequency: 50,
+                isActive: true,
+                rotor: rotor
+            };
+            
+            this.generators.push(generatorGroup);
         }
     }
     
-    spawnEnemies() {
-        // Create enemy AI
+    async createTransformers() {
+        // Create electrical transformers
+        for (let i = 0; i < 8; i++) {
+            const transformerGroup = new THREE.Group();
+            
+            // Transformer core
+            const coreGeometry = new THREE.BoxGeometry(3, 6, 2);
+            const coreMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x333333,
+                shininess: 30
+            });
+            const core = new THREE.Mesh(coreGeometry, coreMaterial);
+            
+            // Transformer coils
+            const coilGeometry = new THREE.TorusGeometry(1.5, 0.3, 8, 16);
+            const coilMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x666666,
+                shininess: 80
+            });
+            
+            const coil1 = new THREE.Mesh(coilGeometry, coilMaterial);
+            coil1.position.y = 2;
+            coil1.rotation.x = Math.PI / 2;
+            
+            const coil2 = new THREE.Mesh(coilGeometry, coilMaterial);
+            coil2.position.y = -2;
+            coil2.rotation.x = Math.PI / 2;
+            
+            transformerGroup.add(core);
+            transformerGroup.add(coil1);
+            transformerGroup.add(coil2);
+            
+            transformerGroup.position.set(
+                (Math.random() - 0.5) * 80,
+                3,
+                (Math.random() - 0.5) * 80
+            );
+            
+            transformerGroup.castShadow = true;
+            transformerGroup.receiveShadow = true;
+            this.scene.add(transformerGroup);
+            
+            transformerGroup.userData = {
+                type: 'transformer',
+                inputVoltage: 220,
+                outputVoltage: 12,
+                isActive: true,
+                coils: [coil1, coil2]
+            };
+            
+            this.transformers.push(transformerGroup);
+        }
+    }
+    
+    async createSwitches() {
+        // Create electrical switches
+        for (let i = 0; i < 12; i++) {
+            const switchGroup = new THREE.Group();
+            
+            // Switch base
+            const baseGeometry = new THREE.BoxGeometry(2, 0.5, 1);
+            const baseMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x222222,
+                shininess: 50
+            });
+            const base = new THREE.Mesh(baseGeometry, baseMaterial);
+            
+            // Switch lever
+            const leverGeometry = new THREE.BoxGeometry(0.2, 2, 0.2);
+            const leverMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x666666,
+                shininess: 80
+            });
+            const lever = new THREE.Mesh(leverGeometry, leverMaterial);
+            lever.position.y = 1;
+            
+            switchGroup.add(base);
+            switchGroup.add(lever);
+            
+            switchGroup.position.set(
+                (Math.random() - 0.5) * 60,
+                0.25,
+                (Math.random() - 0.5) * 60
+            );
+            
+            switchGroup.castShadow = true;
+            switchGroup.receiveShadow = true;
+            this.scene.add(switchGroup);
+            
+            switchGroup.userData = {
+                type: 'switch',
+                isOn: false,
+                lever: lever
+            };
+            
+            this.switches.push(switchGroup);
+        }
+    }
+    
+    async createResistors() {
+        // Create electrical resistors
+        for (let i = 0; i < 15; i++) {
+            const resistorGeometry = new THREE.CylinderGeometry(0.3, 0.3, 2, 8);
+            const resistorMaterial = new THREE.MeshPhongMaterial({ 
+                color: new THREE.Color().setHSL(0.1, 0.8, 0.5),
+                shininess: 100
+            });
+            const resistor = new THREE.Mesh(resistorGeometry, resistorMaterial);
+            
+            resistor.position.set(
+                (Math.random() - 0.5) * 70,
+                1,
+                (Math.random() - 0.5) * 70
+            );
+            resistor.rotation.z = Math.PI / 2;
+            
+            resistor.castShadow = true;
+            resistor.receiveShadow = true;
+            this.scene.add(resistor);
+            
+            resistor.userData = {
+                type: 'resistor',
+                resistance: 100 + Math.random() * 900, // 100-1000 ohms
+                isActive: true
+            };
+            
+            this.resistors.push(resistor);
+        }
+    }
+    
+    async createCapacitors() {
+        // Create electrical capacitors
         for (let i = 0; i < 10; i++) {
-            const enemy = this.createEnemy();
-            this.enemies.push(enemy);
+            const capacitorGroup = new THREE.Group();
+            
+            // Capacitor body
+            const bodyGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1, 8);
+            const bodyMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x444444,
+                shininess: 100
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            
+            // Capacitor terminals
+            const terminalGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.5, 8);
+            const terminalMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x888888,
+                shininess: 100
+            });
+            
+            const terminal1 = new THREE.Mesh(terminalGeometry, terminalMaterial);
+            terminal1.position.set(-0.3, 0.75, 0);
+            
+            const terminal2 = new THREE.Mesh(terminalGeometry, terminalMaterial);
+            terminal2.position.set(0.3, 0.75, 0);
+            
+            capacitorGroup.add(body);
+            capacitorGroup.add(terminal1);
+            capacitorGroup.add(terminal2);
+            
+            capacitorGroup.position.set(
+                (Math.random() - 0.5) * 50,
+                0.5,
+                (Math.random() - 0.5) * 50
+            );
+            
+            capacitorGroup.castShadow = true;
+            capacitorGroup.receiveShadow = true;
+            this.scene.add(capacitorGroup);
+            
+            capacitorGroup.userData = {
+                type: 'capacitor',
+                capacitance: 0.001 + Math.random() * 0.009, // 1-10 mF
+                isActive: true
+            };
+            
+            this.capacitors.push(capacitorGroup);
         }
     }
     
-    createEnemy() {
-        const enemyGroup = new THREE.Group();
-        
-        // Enemy body
-        const bodyGeometry = new THREE.CylinderGeometry(0.7, 0.7, 4, 8);
-        const bodyMaterial = new THREE.MeshPhongMaterial({ 
-            color: 0xff0000,
-            shininess: 30
-        });
-        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-        
-        // Enemy head
-        const headGeometry = new THREE.SphereGeometry(0.8, 12, 8);
-        const headMaterial = new THREE.MeshPhongMaterial({ 
-            color: 0x8B0000
-        });
-        const head = new THREE.Mesh(headGeometry, headMaterial);
-        
-        body.position.y = 2;
-        head.position.y = 4.5;
-        
-        enemyGroup.add(body);
-        enemyGroup.add(head);
-        
-        enemyGroup.position.set(
-            (Math.random() - 0.5) * 200,
-            0,
-            (Math.random() - 0.5) * 200
-        );
-        
-        enemyGroup.castShadow = true;
-        enemyGroup.receiveShadow = true;
-        this.scene.add(enemyGroup);
-        
-        // Enemy AI properties
-        enemyGroup.userData = {
-            health: 100,
-            speed: 2 + Math.random() * 3,
-            attackRange: 15,
-            lastAttack: 0,
-            target: this.camera.position,
-            isAlive: true
-        };
-        
-        return enemyGroup;
+    async createWires() {
+        // Create electrical wires connecting components
+        for (let i = 0; i < 20; i++) {
+            const wireGeometry = new THREE.CylinderGeometry(0.05, 0.05, 10, 8);
+            const wireMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x888888,
+                shininess: 100
+            });
+            const wire = new THREE.Mesh(wireGeometry, wireMaterial);
+            
+            wire.position.set(
+                (Math.random() - 0.5) * 80,
+                1,
+                (Math.random() - 0.5) * 80
+            );
+            wire.rotation.z = Math.random() * Math.PI;
+            
+            wire.castShadow = true;
+            wire.receiveShadow = true;
+            this.scene.add(wire);
+            
+            wire.userData = {
+                type: 'wire',
+                resistance: 0.1,
+                isActive: true,
+                current: 0
+            };
+            
+            this.wires.push(wire);
+        }
+    }
+    
+    async createLoads() {
+        // Create electrical loads (lights, motors, etc.)
+        for (let i = 0; i < 20; i++) {
+            const loadGroup = new THREE.Group();
+            
+            // Load base
+            const baseGeometry = new THREE.CylinderGeometry(1, 1, 0.5, 8);
+            const baseMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x333333,
+                shininess: 50
+            });
+            const base = new THREE.Mesh(baseGeometry, baseMaterial);
+            
+            // Load indicator (light)
+            const lightGeometry = new THREE.SphereGeometry(0.3, 8, 8);
+            const lightMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0x000000,
+                transparent: true,
+                opacity: 0.8
+            });
+            const light = new THREE.Mesh(lightGeometry, lightMaterial);
+            light.position.y = 0.5;
+            
+            loadGroup.add(base);
+            loadGroup.add(light);
+            
+            loadGroup.position.set(
+                (Math.random() - 0.5) * 60,
+                0.25,
+                (Math.random() - 0.5) * 60
+            );
+            
+            loadGroup.castShadow = true;
+            loadGroup.receiveShadow = true;
+            this.scene.add(loadGroup);
+            
+            loadGroup.userData = {
+                type: 'load',
+                power: 10 + Math.random() * 90, // 10-100W
+                isActive: false,
+                light: light
+            };
+            
+            this.loads.push(loadGroup);
+        }
+    }
+    
+    async createElectricalFlow() {
+        // Create visual representation of electrical flow
+        for (let i = 0; i < 50; i++) {
+            const flowGeometry = new THREE.SphereGeometry(0.1, 4, 4);
+            const flowMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0x00ffff,
+                transparent: true,
+                opacity: 0.8
+            });
+            const flow = new THREE.Mesh(flowGeometry, flowMaterial);
+            
+            flow.position.set(
+                (Math.random() - 0.5) * 100,
+                Math.random() * 10,
+                (Math.random() - 0.5) * 100
+            );
+            
+            flow.userData = {
+                type: 'flow',
+                velocity: new THREE.Vector3(
+                    (Math.random() - 0.5) * 5,
+                    0,
+                    (Math.random() - 0.5) * 5
+                ),
+                life: 1.0
+            };
+            
+            this.scene.add(flow);
+            this.electricalFlow.push(flow);
+        }
     }
     
     async setupPostProcessing() {
-        // Setup epic post-processing effects
+        // Setup electrical-themed post-processing
         this.composer = new THREE.EffectComposer(this.renderer);
         
         const renderPass = new THREE.RenderPass(this.scene, this.camera);
         this.composer.addPass(renderPass);
         
-        // Bloom effect for epic visuals
+        // Electrical bloom effect
         const bloomPass = new THREE.UnrealBloomPass(
             new THREE.Vector2(window.innerWidth, window.innerHeight),
-            2.0, 0.4, 0.85
+            2.5, 0.4, 0.85
         );
         this.composer.addPass(bloomPass);
         
-        // Film grain for cinematic effect
-        const filmPass = new THREE.FilmPass(0.35, 0.025, 648, false);
+        // Film grain for electrical atmosphere
+        const filmPass = new THREE.FilmPass(0.25, 0.025, 648, false);
         this.composer.addPass(filmPass);
         
         // FXAA for anti-aliasing
         const fxaaPass = new THREE.FXAAPass();
         this.composer.addPass(fxaaPass);
-    }
-    
-    async setupPhysics() {
-        // Simple physics for bullets and explosions
-        this.physicsObjects = [];
     }
     
     setupControls() {
@@ -533,11 +560,11 @@ class EpicGame3D {
         });
         
         this.controls.addEventListener('lock', () => {
-            console.log('🎮 Controls locked - Ready for action!');
+            console.log('⚡ Electrical simulator controls locked!');
         });
         
         this.controls.addEventListener('unlock', () => {
-            console.log('🎮 Controls unlocked');
+            console.log('⚡ Electrical simulator controls unlocked');
         });
     }
     
@@ -546,15 +573,15 @@ class EpicGame3D {
         document.addEventListener('keydown', (event) => {
             this.keys[event.code] = true;
             
-            // Game controls
-            if (event.code === 'KeyR' && !this.gameState.isReloading) {
-                this.reload();
+            // Electrical controls
+            if (event.code === 'KeyR') {
+                this.resetCircuit();
+            } else if (event.code === 'KeyT') {
+                this.toggleTransformers();
             } else if (event.code === 'KeyG') {
-                this.throwGrenade();
-            } else if (event.code === 'KeyE') {
-                this.interact();
+                this.generatePower();
             } else if (event.code === 'Tab') {
-                this.showScoreboard();
+                this.showCircuitDiagram();
             } else if (event.code === 'Escape') {
                 this.togglePause();
             }
@@ -568,10 +595,10 @@ class EpicGame3D {
         document.addEventListener('mousedown', (event) => {
             if (event.button === 0) { // Left click
                 this.mouse.buttons.left = true;
-                this.shoot();
+                this.toggleSwitch();
             } else if (event.button === 2) { // Right click
                 this.mouse.buttons.right = true;
-                this.aim();
+                this.adjustResistor();
             }
         });
         
@@ -580,7 +607,6 @@ class EpicGame3D {
                 this.mouse.buttons.left = false;
             } else if (event.button === 2) {
                 this.mouse.buttons.right = false;
-                this.stopAim();
             }
         });
         
@@ -599,7 +625,7 @@ class EpicGame3D {
     }
     
     updatePlayer() {
-        if (!this.controls.isLocked || this.gameState.isPaused) return;
+        if (!this.controls.isLocked) return;
         
         const delta = this.clock.getDelta();
         const moveSpeed = this.keys['ShiftLeft'] ? this.player.runSpeed : this.player.speed;
@@ -636,274 +662,200 @@ class EpicGame3D {
             this.player.velocity.y = 0;
             this.player.onGround = true;
         }
-        
-        // Update player position
-        this.player.position.copy(this.controls.getObject().position);
     }
     
-    updateEnemies() {
-        this.enemies.forEach(enemy => {
-            if (!enemy.userData.isAlive) return;
-            
-            const delta = this.clock.getDelta();
-            const playerPos = this.player.position;
-            const enemyPos = enemy.position;
-            
-            // Calculate distance to player
-            const distance = playerPos.distanceTo(enemyPos);
-            
-            if (distance < enemy.userData.attackRange) {
-                // Attack player
-                if (Date.now() - enemy.userData.lastAttack > 1000) {
-                    this.enemyAttack(enemy);
-                    enemy.userData.lastAttack = Date.now();
-                }
-            } else if (distance < 50) {
-                // Move towards player
-                const direction = playerPos.clone().sub(enemyPos).normalize();
-                enemy.position.add(direction.multiplyScalar(enemy.userData.speed * delta));
-                
-                // Rotate enemy to face player
-                enemy.lookAt(playerPos);
-            }
-        });
-    }
-    
-    enemyAttack(enemy) {
-        // Reduce player health
-        this.gameState.health -= 10;
-        this.updateUI();
-        
-        // Create attack effect
-        this.createExplosion(enemy.position, 0xff0000, 2);
-        
-        // Play attack sound
-        this.playSound('attack');
-    }
-    
-    shoot() {
-        if (this.gameState.ammo <= 0 || this.gameState.isReloading) return;
-        
-        this.gameState.ammo--;
-        this.updateUI();
-        
-        // Create bullet
-        const bulletGeometry = new THREE.SphereGeometry(0.1, 8, 8);
-        const bulletMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-        const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
-        
-        bullet.position.copy(this.camera.position);
-        
-        // Calculate bullet direction
-        const direction = new THREE.Vector3(0, 0, -1);
-        direction.applyQuaternion(this.camera.quaternion);
-        
-        bullet.userData = {
-            velocity: direction.multiplyScalar(100),
-            life: 2.0
-        };
-        
-        this.scene.add(bullet);
-        this.bullets.push(bullet);
-        
-        // Play shoot sound
-        this.playSound('shoot');
-        
-        // Create muzzle flash
-        this.createMuzzleFlash();
-    }
-    
-    updateBullets() {
+    updateElectricalSystem() {
         const delta = this.clock.getDelta();
         
-        for (let i = this.bullets.length - 1; i >= 0; i--) {
-            const bullet = this.bullets[i];
-            
-            // Update position
-            bullet.position.add(bullet.userData.velocity.clone().multiplyScalar(delta));
-            
-            // Reduce life
-            bullet.userData.life -= delta;
-            
-            // Check collision with enemies
-            this.enemies.forEach(enemy => {
-                if (enemy.userData.isAlive && bullet.position.distanceTo(enemy.position) < 2) {
-                    this.hitEnemy(enemy, bullet);
-                }
-            });
-            
-            // Remove bullet if life expired
-            if (bullet.userData.life <= 0) {
-                this.scene.remove(bullet);
-                this.bullets.splice(i, 1);
+        // Update generators
+        this.generators.forEach(generator => {
+            if (generator.userData.isActive) {
+                generator.userData.rotor.rotation.y += delta * 10;
             }
-        }
+        });
+        
+        // Update transformers
+        this.transformers.forEach(transformer => {
+            if (transformer.userData.isActive) {
+                transformer.userData.coils.forEach(coil => {
+                    coil.rotation.y += delta * 5;
+                });
+            }
+        });
+        
+        // Update electrical flow
+        this.electricalFlow.forEach(flow => {
+            flow.position.add(flow.userData.velocity.clone().multiplyScalar(delta));
+            flow.userData.life -= delta;
+            
+            if (flow.userData.life <= 0) {
+                flow.position.set(
+                    (Math.random() - 0.5) * 100,
+                    Math.random() * 10,
+                    (Math.random() - 0.5) * 100
+                );
+                flow.userData.life = 1.0;
+            }
+        });
+        
+        // Calculate electrical properties
+        this.calculateElectricalProperties();
     }
     
-    hitEnemy(enemy, bullet) {
-        enemy.userData.health -= 25;
+    calculateElectricalProperties() {
+        // Simple electrical calculations
+        let totalResistance = 0;
+        let totalVoltage = 0;
+        let activeLoads = 0;
         
-        if (enemy.userData.health <= 0) {
-            enemy.userData.isAlive = false;
-            this.scene.remove(enemy);
-            this.gameState.score += 100;
-            this.gameState.enemiesKilled++;
-            this.createExplosion(enemy.position, 0xff6b6b, 5);
-            this.playSound('explosion');
+        // Calculate total resistance
+        this.resistors.forEach(resistor => {
+            if (resistor.userData.isActive) {
+                totalResistance += resistor.userData.resistance;
+            }
+        });
+        
+        // Calculate total voltage from generators
+        this.generators.forEach(generator => {
+            if (generator.userData.isActive) {
+                totalVoltage += generator.userData.voltage;
+            }
+        });
+        
+        // Count active loads
+        this.loads.forEach(load => {
+            if (load.userData.isActive) {
+                activeLoads++;
+            }
+        });
+        
+        // Apply Ohm's Law: V = I * R, P = V * I
+        if (totalResistance > 0) {
+            this.electricalState.current = totalVoltage / totalResistance;
+            this.electricalState.power = totalVoltage * this.electricalState.current;
         } else {
-            this.createExplosion(enemy.position, 0xff0000, 2);
+            this.electricalState.current = 0;
+            this.electricalState.power = 0;
         }
         
-        // Remove bullet
-        this.scene.remove(bullet);
-        this.bullets.splice(this.bullets.indexOf(bullet), 1);
+        this.electricalState.voltage = totalVoltage;
+        this.electricalState.resistance = totalResistance;
+        this.electricalState.efficiency = activeLoads > 0 ? (activeLoads / this.loads.length) * 100 : 0;
+        this.electricalState.circuitClosed = totalResistance > 0 && totalVoltage > 0;
         
         this.updateUI();
     }
     
-    createExplosion(position, color, size) {
-        const explosionGroup = new THREE.Group();
+    toggleSwitch() {
+        // Find nearest switch and toggle it
+        const playerPos = this.controls.getObject().position;
+        let nearestSwitch = null;
+        let minDistance = Infinity;
         
-        for (let i = 0; i < 20; i++) {
-            const particleGeometry = new THREE.SphereGeometry(0.1, 4, 4);
-            const particleMaterial = new THREE.MeshBasicMaterial({ 
-                color: color,
-                transparent: true,
-                opacity: 1
-            });
-            const particle = new THREE.Mesh(particleGeometry, particleMaterial);
-            
-            particle.position.copy(position);
-            particle.userData = {
-                velocity: new THREE.Vector3(
-                    (Math.random() - 0.5) * 20,
-                    Math.random() * 15,
-                    (Math.random() - 0.5) * 20
-                ),
-                life: 1.0,
-                gravity: -10
-            };
-            
-            explosionGroup.add(particle);
-        }
-        
-        this.scene.add(explosionGroup);
-        this.explosions.push(explosionGroup);
-    }
-    
-    updateExplosions() {
-        const delta = this.clock.getDelta();
-        
-        for (let i = this.explosions.length - 1; i >= 0; i--) {
-            const explosion = this.explosions[i];
-            
-            explosion.children.forEach(particle => {
-                // Update position
-                particle.position.add(particle.userData.velocity.clone().multiplyScalar(delta));
-                
-                // Apply gravity
-                particle.userData.velocity.y += particle.userData.gravity * delta;
-                
-                // Reduce life
-                particle.userData.life -= delta;
-                particle.material.opacity = particle.userData.life;
-                
-                // Scale down
-                particle.scale.multiplyScalar(0.95);
-            });
-            
-            // Remove explosion if all particles are dead
-            if (explosion.children.length === 0 || explosion.children[0].userData.life <= 0) {
-                this.scene.remove(explosion);
-                this.explosions.splice(i, 1);
+        this.switches.forEach(switchObj => {
+            const distance = playerPos.distanceTo(switchObj.position);
+            if (distance < minDistance && distance < 5) {
+                minDistance = distance;
+                nearestSwitch = switchObj;
             }
+        });
+        
+        if (nearestSwitch) {
+            nearestSwitch.userData.isOn = !nearestSwitch.userData.isOn;
+            
+            // Animate switch lever
+            if (nearestSwitch.userData.isOn) {
+                nearestSwitch.userData.lever.rotation.z = Math.PI / 4;
+            } else {
+                nearestSwitch.userData.lever.rotation.z = -Math.PI / 4;
+            }
+            
+            this.playSound('switch');
+            console.log(`🔌 Switch ${nearestSwitch.userData.isOn ? 'ON' : 'OFF'}`);
         }
     }
     
-    createMuzzleFlash() {
-        const flashGeometry = new THREE.SphereGeometry(0.5, 8, 8);
-        const flashMaterial = new THREE.MeshBasicMaterial({ 
-            color: 0xffff00,
-            transparent: true,
-            opacity: 0.8
+    adjustResistor() {
+        // Find nearest resistor and adjust its value
+        const playerPos = this.controls.getObject().position;
+        let nearestResistor = null;
+        let minDistance = Infinity;
+        
+        this.resistors.forEach(resistor => {
+            const distance = playerPos.distanceTo(resistor.position);
+            if (distance < minDistance && distance < 5) {
+                minDistance = distance;
+                nearestResistor = resistor;
+            }
         });
-        const flash = new THREE.Mesh(flashGeometry, flashMaterial);
         
-        flash.position.copy(this.camera.position);
-        flash.position.add(new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera.quaternion));
-        
-        this.scene.add(flash);
-        
-        // Remove flash after short time
-        setTimeout(() => {
-            this.scene.remove(flash);
-        }, 100);
+        if (nearestResistor) {
+            // Adjust resistance value
+            nearestResistor.userData.resistance = Math.max(10, 
+                nearestResistor.userData.resistance + (Math.random() - 0.5) * 200
+            );
+            
+            // Change color based on resistance
+            const hue = Math.min(0.1, nearestResistor.userData.resistance / 10000);
+            nearestResistor.material.color.setHSL(hue, 0.8, 0.5);
+            
+            this.playSound('adjust');
+            console.log(`🔧 Resistor adjusted to ${nearestResistor.userData.resistance.toFixed(1)}Ω`);
+        }
     }
     
-    reload() {
-        if (this.gameState.isReloading) return;
+    resetCircuit() {
+        // Reset all electrical components
+        this.switches.forEach(switchObj => {
+            switchObj.userData.isOn = false;
+            switchObj.userData.lever.rotation.z = -Math.PI / 4;
+        });
         
-        this.gameState.isReloading = true;
-        this.playSound('reload');
+        this.loads.forEach(load => {
+            load.userData.isActive = false;
+            load.userData.light.material.color.setHex(0x000000);
+        });
         
-        setTimeout(() => {
-            this.gameState.ammo = this.gameState.maxAmmo;
-            this.gameState.isReloading = false;
-            this.updateUI();
-        }, 2000);
+        this.electricalState.voltage = 0;
+        this.electricalState.current = 0;
+        this.electricalState.power = 0;
+        
+        this.playSound('reset');
+        console.log('🔄 Circuit reset');
     }
     
-    aim() {
-        this.gameState.isAiming = true;
-        this.camera.fov = 45; // Zoom in
-        this.camera.updateProjectionMatrix();
+    toggleTransformers() {
+        this.transformers.forEach(transformer => {
+            transformer.userData.isActive = !transformer.userData.isActive;
+        });
+        
+        this.playSound('transformer');
+        console.log('⚡ Transformers toggled');
     }
     
-    stopAim() {
-        this.gameState.isAiming = false;
-        this.camera.fov = 75; // Zoom out
-        this.camera.updateProjectionMatrix();
+    generatePower() {
+        this.generators.forEach(generator => {
+            generator.userData.isActive = !generator.userData.isActive;
+        });
+        
+        this.playSound('generator');
+        console.log('🔋 Power generation toggled');
     }
     
-    throwGrenade() {
-        // Create grenade
-        const grenadeGeometry = new THREE.SphereGeometry(0.3, 8, 8);
-        const grenadeMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
-        const grenade = new THREE.Mesh(grenadeGeometry, grenadeMaterial);
-        
-        grenade.position.copy(this.camera.position);
-        
-        const direction = new THREE.Vector3(0, 0, -1);
-        direction.applyQuaternion(this.camera.quaternion);
-        
-        grenade.userData = {
-            velocity: direction.multiplyScalar(30),
-            gravity: -15,
-            life: 3.0
-        };
-        
-        this.scene.add(grenade);
-        this.bullets.push(grenade);
-        
-        this.playSound('grenade');
-    }
-    
-    interact() {
-        // Check for nearby interactable objects
-        console.log('🔍 Interacting...');
-    }
-    
-    showScoreboard() {
-        console.log(`🏆 Score: ${this.gameState.score} | Enemies Killed: ${this.gameState.enemiesKilled}`);
+    showCircuitDiagram() {
+        console.log('📊 Circuit Status:');
+        console.log(`⚡ Voltage: ${this.electricalState.voltage.toFixed(1)}V`);
+        console.log(`🔌 Current: ${this.electricalState.current.toFixed(2)}A`);
+        console.log(`💡 Power: ${this.electricalState.power.toFixed(1)}W`);
+        console.log(`🔧 Resistance: ${this.electricalState.resistance.toFixed(1)}Ω`);
+        console.log(`📊 Efficiency: ${this.electricalState.efficiency.toFixed(1)}%`);
     }
     
     togglePause() {
-        this.gameState.isPaused = !this.gameState.isPaused;
-        console.log(this.gameState.isPaused ? '⏸️ Game Paused' : '▶️ Game Resumed');
+        console.log('⏸️ Simulation paused/resumed');
     }
     
     playSound(type) {
-        // Simple sound generation using Web Audio API
         const oscillator = this.audioContext.createOscillator();
         const gainNode = this.audioContext.createGain();
         
@@ -911,23 +863,25 @@ class EpicGame3D {
         gainNode.connect(this.audioContext.destination);
         
         switch(type) {
-            case 'shoot':
-                oscillator.frequency.setValueAtTime(800, this.audioContext.currentTime);
+            case 'switch':
+                oscillator.frequency.setValueAtTime(400, this.audioContext.currentTime);
                 oscillator.frequency.exponentialRampToValueAtTime(200, this.audioContext.currentTime + 0.1);
                 break;
-            case 'explosion':
-                oscillator.frequency.setValueAtTime(100, this.audioContext.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(50, this.audioContext.currentTime + 0.5);
-                break;
-            case 'reload':
-                oscillator.frequency.setValueAtTime(400, this.audioContext.currentTime);
-                oscillator.frequency.exponentialRampToValueAtTime(200, this.audioContext.currentTime + 0.3);
-                break;
-            case 'attack':
-                oscillator.frequency.setValueAtTime(300, this.audioContext.currentTime);
-                break;
-            case 'grenade':
+            case 'adjust':
                 oscillator.frequency.setValueAtTime(600, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(300, this.audioContext.currentTime + 0.2);
+                break;
+            case 'generator':
+                oscillator.frequency.setValueAtTime(50, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(100, this.audioContext.currentTime + 0.5);
+                break;
+            case 'transformer':
+                oscillator.frequency.setValueAtTime(120, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(60, this.audioContext.currentTime + 0.3);
+                break;
+            case 'reset':
+                oscillator.frequency.setValueAtTime(200, this.audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(50, this.audioContext.currentTime + 0.4);
                 break;
         }
         
@@ -939,10 +893,20 @@ class EpicGame3D {
     }
     
     updateUI() {
-        document.getElementById('health').textContent = `❤️ Health: ${this.gameState.health}`;
-        document.getElementById('score').textContent = `⭐ Score: ${this.gameState.score}`;
-        document.getElementById('ammo').textContent = `🔫 Ammo: ${this.gameState.ammo}`;
-        document.getElementById('objects').textContent = `Objects: ${this.objects.length}`;
+        document.getElementById('voltage').textContent = `⚡ Voltage: ${this.electricalState.voltage.toFixed(1)}V`;
+        document.getElementById('current').textContent = `🔌 Current: ${this.electricalState.current.toFixed(2)}A`;
+        document.getElementById('power').textContent = `💡 Power: ${this.electricalState.power.toFixed(1)}W`;
+        document.getElementById('resistance').textContent = `🔧 Resistance: ${this.electricalState.resistance.toFixed(1)}Ω`;
+        document.getElementById('efficiency').textContent = `📊 Efficiency: ${this.electricalState.efficiency.toFixed(1)}%`;
+        
+        const circuitStatus = document.getElementById('circuit-status');
+        if (this.electricalState.circuitClosed) {
+            circuitStatus.textContent = '🟢 Circuit Closed';
+            circuitStatus.className = 'circuit-closed';
+        } else {
+            circuitStatus.textContent = '🔴 Circuit Open';
+            circuitStatus.className = '';
+        }
     }
     
     updateStats() {
@@ -953,8 +917,6 @@ class EpicGame3D {
             this.stats.fps = Math.round((this.stats.frameCount * 1000) / (currentTime - this.stats.lastTime));
             this.stats.frameCount = 0;
             this.stats.lastTime = currentTime;
-            
-            document.getElementById('fps').textContent = `FPS: ${this.stats.fps}`;
         }
     }
     
@@ -965,26 +927,15 @@ class EpicGame3D {
     animate() {
         requestAnimationFrame(() => this.animate());
         
-        if (!this.gameState.isPaused) {
-            this.updatePlayer();
-            this.updateEnemies();
-            this.updateBullets();
-            this.updateExplosions();
-            this.updateStats();
-            
-            // Animate point lights
-            this.pointLights.forEach((light, index) => {
-                light.position.y += Math.sin(Date.now() * 0.001 + index) * 0.01;
-                light.intensity = 1 + Math.sin(Date.now() * 0.002 + index) * 0.5;
-            });
-            
-            // Rotate some objects
-            this.objects.forEach((obj, index) => {
-                if (index % 11 === 0) {
-                    obj.rotation.y += 0.005;
-                }
-            });
-        }
+        this.updatePlayer();
+        this.updateElectricalSystem();
+        this.updateStats();
+        
+        // Animate electrical lights
+        this.electricalLights.forEach((light, index) => {
+            light.intensity = 1 + Math.sin(Date.now() * 0.003 + index) * 0.5;
+            light.position.y += Math.sin(Date.now() * 0.002 + index) * 0.01;
+        });
         
         // Render
         if (this.composer) {
@@ -995,7 +946,7 @@ class EpicGame3D {
     }
 }
 
-// Initialize the epic game when the page loads
+// Initialize the electrical flow simulator
 window.addEventListener('load', () => {
-    new EpicGame3D();
+    new ElectricalFlowSimulator();
 });

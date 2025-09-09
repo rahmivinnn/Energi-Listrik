@@ -32,15 +32,36 @@
         .game-title {
             font-size: 24px;
             font-weight: bold;
-            color: #ff6b6b;
+            color: #00ffff;
             text-shadow: 3px 3px 6px rgba(0,0,0,0.9);
             margin-bottom: 10px;
-            animation: glow 2s ease-in-out infinite alternate;
+            animation: electricGlow 1.5s ease-in-out infinite alternate;
         }
         
-        @keyframes glow {
-            from { text-shadow: 3px 3px 6px rgba(0,0,0,0.9), 0 0 10px #ff6b6b; }
-            to { text-shadow: 3px 3px 6px rgba(0,0,0,0.9), 0 0 20px #ff6b6b, 0 0 30px #ff6b6b; }
+        @keyframes electricGlow {
+            from { text-shadow: 3px 3px 6px rgba(0,0,0,0.9), 0 0 10px #00ffff, 0 0 20px #0080ff; }
+            to { text-shadow: 3px 3px 6px rgba(0,0,0,0.9), 0 0 20px #00ffff, 0 0 40px #0080ff, 0 0 60px #0040ff; }
+        }
+        
+        .circuit-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #ffff00;
+            margin-bottom: 5px;
+        }
+        
+        #circuit-status {
+            font-size: 14px;
+            padding: 5px;
+            border-radius: 5px;
+            background: rgba(255,0,0,0.2);
+            border: 1px solid #ff0000;
+        }
+        
+        #circuit-status.circuit-closed {
+            background: rgba(0,255,0,0.2);
+            border: 1px solid #00ff00;
+            color: #00ff00;
         }
         
         .stats {
@@ -116,30 +137,34 @@
         </div>
         
         <div id="ui">
-            <div class="game-title">🎮 EPIC 3D ADVENTURE</div>
+            <div class="game-title">⚡ ELECTRICAL FLOW SIMULATOR</div>
             <div class="stats">
-                <div id="fps">FPS: --</div>
-                <div id="objects">Objects: --</div>
-                <div id="health">❤️ Health: 100</div>
-                <div id="score">⭐ Score: 0</div>
-                <div id="ammo">🔫 Ammo: 30</div>
+                <div id="voltage">⚡ Voltage: 0V</div>
+                <div id="current">🔌 Current: 0A</div>
+                <div id="power">💡 Power: 0W</div>
+                <div id="resistance">🔧 Resistance: 0Ω</div>
+                <div id="efficiency">📊 Efficiency: 0%</div>
             </div>
-            <div id="crosshair">+</div>
+            <div id="circuit-diagram">
+                <div class="circuit-title">Circuit Status</div>
+                <div id="circuit-status">🔴 Circuit Open</div>
+            </div>
         </div>
         
         <div id="controls">
-            <strong>🎮 EPIC CONTROLS:</strong><br>
+            <strong>⚡ ELECTRICAL CONTROLS:</strong><br>
             WASD - Move<br>
             Mouse - Look around<br>
             Space - Jump<br>
             Shift - Run<br>
-            Left Click - Shoot<br>
-            Right Click - Aim<br>
-            R - Reload<br>
-            G - Throw Grenade<br>
-            E - Interact<br>
-            Tab - Show Scoreboard<br>
-            ESC - Pause Game
+            Left Click - Toggle Switch<br>
+            Right Click - Adjust Resistor<br>
+            E - Connect/Disconnect Wire<br>
+            R - Reset Circuit<br>
+            T - Toggle Transformer<br>
+            G - Generate Power<br>
+            Tab - Show Circuit Diagram<br>
+            ESC - Pause Simulation
         </div>
     </div>
 
